@@ -17,6 +17,13 @@ import java.util.List;
  * Date: 2019/4/9 16:55
  */
 public class MyAccessibilityService extends AccessibilityService {
+
+    @Override
+    public void onCreate() {
+        super.onCreate();
+        LogUtil.init(getPackageName(), "tag_wx", true, false);
+    }
+
     @Override
     protected void onServiceConnected() {
 //        AccessibilityServiceInfo info = getServiceInfo();
@@ -38,9 +45,15 @@ public class MyAccessibilityService extends AccessibilityService {
         }
 
         // 第一种是通过节点View的Text内容来查找
-        List<AccessibilityNodeInfo> nodeInfoList = rootNode.findAccessibilityNodeInfosByText("好友");
+        List<AccessibilityNodeInfo> nodeInfoList = rootNode.findAccessibilityNodeInfosByText("微信");
+        LogUtil.i("pkgName nodes " + nodeInfoList.size());
         for (AccessibilityNodeInfo info : nodeInfoList) {
-
+            info.performAction(AccessibilityNodeInfo.ACTION_CLICK);
+            try {
+                Thread.sleep(3000);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
         }
         // 第二种是通过节点View在xml布局中的id名称
         rootNode.findAccessibilityNodeInfosByViewId("");
