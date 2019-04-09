@@ -1,0 +1,6 @@
+<resources>
+    <string name="app_name">wxHelper</string>
+    <string name="service_name">service_name</string>
+
+    <string name="desc">wx辅助工具</string>
+</resources>
