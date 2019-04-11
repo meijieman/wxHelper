@@ -5,6 +5,7 @@ import android.app.ActivityManager;
 import android.content.Context;
 import android.text.TextUtils;
 import android.util.Log;
+import android.view.KeyEvent;
 import android.view.accessibility.AccessibilityEvent;
 import android.view.accessibility.AccessibilityNodeInfo;
 
@@ -26,7 +27,6 @@ public class MyAccessibilityService extends AccessibilityService {
     @Override
     public void onCreate() {
         super.onCreate();
-        LogUtil.init(getPackageName(), "tag_wx", true, false);
     }
 
  /*   @Override
@@ -79,37 +79,47 @@ public class MyAccessibilityService extends AccessibilityService {
         }
     }*/
 
-    @Override
-    public void onInterrupt() {
-
-    }
-
     private static final String TAG = "AutoSendMsgService";
     private List<String> allNameList = new ArrayList<>();
     private int mRepeatCount;
 
-    public static boolean hasSend;
     public static final int SEND_FAIL = 0;
     public static final int SEND_SUCCESS = 1;
-    public static int SEND_STATUS;
+
+    public static boolean hasSend;
+    public static int sSendStatus;
+
+    @Override
+    protected boolean onKeyEvent(KeyEvent event) {
+        switch (event.getAction()) {
+            case KeyEvent.ACTION_DOWN:
+                // 在聊天界面，点击发送按钮
+                LogUtil.i("onKeyEvent ACTION_DOWN ");
+                break;
+
+            case KeyEvent.ACTION_UP:
+
+                break;
+        }
+
+
+
+        return super.onKeyEvent(event);
+    }
 
     /**
      * 必须重写的方法，响应各种事件。
-     *
-     * @param event
      */
     @Override
     public void onAccessibilityEvent(final AccessibilityEvent event) {
         int eventType = event.getEventType();
         switch (eventType) {
             case AccessibilityEvent.TYPE_WINDOW_STATE_CHANGED: {
-
-                String currentActivity = event.getClassName().toString();
-
                 if (hasSend) {
                     return;
                 }
 
+                String currentActivity = event.getClassName().toString();
                 if (currentActivity.equals(WeChatTextWrapper.WechatClass.WECHAT_CLASS_LAUNCHUI)) {
                     handleFlow_LaunchUI();
                 } else if (currentActivity.equals(WeChatTextWrapper.WechatClass.WECHAT_CLASS_CONTACTINFOUI)) {
@@ -119,6 +129,11 @@ public class MyAccessibilityService extends AccessibilityService {
                 }
             }
             break;
+            case AccessibilityEvent.TYPE_VIEW_CLICKED:
+                LogUtil.i("onAccessibilityEvent TYPE_VIEW_CLICKED ");
+                // 经测试，虚拟按键BACK键、HOME键、最近任务键和音量键全部拦截到
+
+                break;
         }
     }
 
@@ -126,7 +141,7 @@ public class MyAccessibilityService extends AccessibilityService {
 
         //如果微信已经处于聊天界面，需要判断当前联系人是不是需要发送的联系人
         String curUserName = WechatUtils.findTextById(this, WeChatTextWrapper.WechatId.WECHATID_CHATUI_USERNAME_ID);
-        if (!TextUtils.isEmpty(curUserName) && curUserName.equals(WechatUtils.NAME)) {
+        if (curUserName != null && curUserName.equals(WechatUtils.NAME)) {
             if (WechatUtils.findViewByIdAndPasteContent(this, WeChatTextWrapper.WechatId.WECHATID_CHATUI_EDITTEXT_ID, WechatUtils.CONTENT)) {
                 sendContent();
             } else {
@@ -154,7 +169,6 @@ public class MyAccessibilityService extends AccessibilityService {
     }
 
     private void handleFlow_LaunchUI() {
-
         try {
             //点击通讯录，跳转到通讯录页面
             WechatUtils.findTextAndClick(this, "通讯录");
@@ -167,11 +181,11 @@ public class MyAccessibilityService extends AccessibilityService {
             Thread.sleep(200);
 
             //遍历通讯录联系人列表，查找联系人
-            AccessibilityNodeInfo itemInfo = TraversalAndFindContacts();
+            AccessibilityNodeInfo itemInfo = traversalAndFindContacts();
             if (itemInfo != null) {
                 WechatUtils.performClick(itemInfo);
             } else {
-                SEND_STATUS = SEND_FAIL;
+                sSendStatus = SEND_FAIL;
                 resetAndReturnApp();
             }
 
@@ -186,11 +200,14 @@ public class MyAccessibilityService extends AccessibilityService {
      *
      * @return
      */
-    private AccessibilityNodeInfo TraversalAndFindContacts() {
+    private AccessibilityNodeInfo traversalAndFindContacts() {
 
-        if (allNameList != null) allNameList.clear();
+        if (allNameList != null) {
+            allNameList.clear();
+        }
 
         AccessibilityNodeInfo rootNode = getRootInActiveWindow();
+        // 获取 listview
         List<AccessibilityNodeInfo> listview = rootNode.findAccessibilityNodeInfosByViewId(WeChatTextWrapper.WechatId.WECHATID_CONTACTUI_LISTVIEW_ID);
 
         //是否滚动到了底部
@@ -253,7 +270,7 @@ public class MyAccessibilityService extends AccessibilityService {
 
     private void sendContent() {
         WechatUtils.findTextAndClick(this, "发送");
-        SEND_STATUS = SEND_SUCCESS;
+        sSendStatus = SEND_SUCCESS;
         resetAndReturnApp();
     }
 
@@ -268,4 +285,10 @@ public class MyAccessibilityService extends AccessibilityService {
             }
         }
     }
+
+    @Override
+    public void onInterrupt() {
+
+    }
+
 }

@@ -29,7 +29,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_centerVertical="true"
-            android:text="微信好友:" />
+            android:text="昵称:" />
 
         <EditText
             android:id="@+id/sendName"
@@ -37,8 +37,7 @@
             android:layout_height="wrap_content"
             android:layout_marginLeft="5dp"
             android:layout_toRightOf="@+id/wechatName"
-            android:text="测试" />
-
+            android:text="Golden" />
     </RelativeLayout>
 
     <RelativeLayout
@@ -52,8 +51,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_centerVertical="true"
-            android:text="发送内容:" />
-
+            android:text="内容:" />
 
         <EditText
             android:id="@+id/sendContent"
@@ -61,8 +59,7 @@
             android:layout_height="wrap_content"
             android:layout_marginLeft="5dp"
             android:layout_toRightOf="@+id/wechatContent"
-            android:text="测试发微信" />
-
+            android:text="测试的内容" />
     </RelativeLayout>
 
     <RelativeLayout
@@ -78,7 +75,6 @@
             android:layout_centerVertical="true"
             android:text="发送状态:" />
 
-
         <TextView
             android:id="@+id/sendStatus"
             android:layout_width="match_parent"
@@ -86,7 +82,6 @@
             android:layout_centerVertical="true"
             android:layout_marginLeft="5dp"
             android:layout_toRightOf="@+id/wechatStatus" />
-
     </RelativeLayout>
 
     <TextView
@@ -96,7 +91,7 @@
         android:layout_marginLeft="16dp"
         android:layout_marginRight="16dp"
         android:layout_marginTop="50dp"
-        android:background="#E63232"
+        android:background="#801C1C"
         android:gravity="center"
         android:text="发送"
         android:textColor="#ffffff" />
