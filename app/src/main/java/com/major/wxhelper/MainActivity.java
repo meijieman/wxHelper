@@ -1,6 +1,5 @@
 package com.major.wxhelper;
 
-import android.content.ComponentName;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
@@ -44,24 +43,24 @@ public class MainActivity extends AppCompatActivity {
 
     @WorkerThread
     private int send(String name, String content) {
-        WechatUtils.NAME = name;
-        WechatUtils.CONTENT = content;
-        MyAccessibilityService.hasSend = false;
+        WxService.sName = name;
+        WxService.sContent = content;
+
+        WxService.sHasSend = false;
 
         // 启动微信
         Intent intent = new Intent();
         intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-        intent.setClassName(WeChatTextWrapper.WECAHT_PACKAGENAME, WeChatTextWrapper.WechatClass.WECHAT_CLASS_LAUNCHUI);
-        ComponentName componentName = intent.resolveActivity(getPackageManager());
-        if (componentName != null) {
+        intent.setClassName(WxConstant.PKG_NAME, WxConstant.ACT_LAUNCHER_UI);
+        if (intent.resolveActivity(getPackageManager()) != null) {
             startActivity(intent);
         } else {
             runOnUiThread(() -> Toast.makeText(MainActivity.this, "未安装wx", Toast.LENGTH_SHORT).show());
         }
 
         while (true) {
-            if (MyAccessibilityService.hasSend) {
-                return MyAccessibilityService.sSendStatus;
+            if (WxService.sHasSend) {
+                return WxService.sSendStatus;
             } else {
                 try {
                     Thread.sleep(500);
@@ -100,7 +99,7 @@ public class MainActivity extends AppCompatActivity {
         Intent intent = new Intent(android.provider.Settings.ACTION_ACCESSIBILITY_SETTINGS);
         if (intent.resolveActivity(getPackageManager()) != null) {
             startActivity(intent);
-            Toast.makeText(MainActivity.this, "找到微信自动发送消息，然后开启服务即可", Toast.LENGTH_LONG).show();
+            Toast.makeText(MainActivity.this, "找到wxHelper，然后开启服务即可", Toast.LENGTH_LONG).show();
         }
     }
 
@@ -108,7 +107,7 @@ public class MainActivity extends AppCompatActivity {
     Handler statusHandler = new Handler() {
         @Override
         public void handleMessage(Message msg) {
-            if (msg.what == MyAccessibilityService.SEND_SUCCESS) {
+            if (msg.what == WxService.SEND_SUCCESS) {
                 sendStatus.setText("微信发送成功");
             } else {
                 sendStatus.setText("微信发送失败");

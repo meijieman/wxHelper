@@ -8,4 +8,7 @@ https://blog.csdn.net/u010255127/article/details/79184399
 UiAutomatorViewer 查看界面的布局层次
 D:\android\sdk\tools\bin\uiautomatorviewer.bat
 
+当前界面 activity
+adb shell dumpsys window | findstr mCurrentFocus
+
 
